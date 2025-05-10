@@ -6,6 +6,8 @@ from operations import *
 
 app = FastAPI()
 
+##ubicacion del proyecto en git_:
+
 
 @app.get("/")
 def home():
