@@ -1,9 +1,9 @@
 import csv
-from typing import Optional
+from db_connection import engine
 from models import *
 
-DATABASE_FILENAME = "games.csv"
-DATABASE_FILENAME_CONSOLES = "consoles.csv"
+DATABASE_FILENAME = "data/games.csv"
+DATABASE_FILENAME_CONSOLES = "data/consoles.csv"
 column_fields = ["index", "Rank", "Game_Title", "Platform", "Year", "Genre", "Publisher", "North_America", "Europe", "Japan", "Rest_of_World","Global","Review"]
 column_fields_consoles = ["Id", "Console_Name","Type","Company","Released_Year", "Discontinuation_Year","Units_Sold"]
 def read_all_games():
