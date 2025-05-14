@@ -93,8 +93,8 @@ async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLM
 
 @app.get("/import-data/")
 async def import_data_endpoint(session: AsyncSession = Depends(get_session)):
-    await import_csv_data(session, "/home/dsar/Documentos/codes/FastAPIProject/games.csv", GameSQL)
-    await import_csv_data(session, "/home/dsar/Documentos/codes/FastAPIProject/consoles.csv", ConsoleSQL)
+    await import_csv_data(session, "/data/games.csv", GameSQL)
+    await import_csv_data(session, "/data/consoles.csv", ConsoleSQL)
     return {"message": "Importación de datos iniciada.  Por favor, revisa la consola para ver el resultado."}
 
 
