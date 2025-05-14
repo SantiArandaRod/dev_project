@@ -95,7 +95,7 @@ async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLM
 async def import_data_endpoint(session: AsyncSession = Depends(get_session)):
     await import_csv_data(session, "data/games.csv", GameSQL)
     await import_csv_data(session, "data/consoles.csv", ConsoleSQL)
-    return {"message": "Importación de datos iniciada.  Por favor, revisa la consola para ver el resultado."}
+    return {"message": "Importación de datos iniciada y exitosa."}
 
 
 
@@ -106,7 +106,7 @@ async def startup_event():
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "hola, este es el proyecto de Desarrollo de Software. By: David Santiago Aranda Rodriguez"}
 
 @app.post("/games/", response_model=GameSQL, tags=["Create Game"])
 async def create_game_endpoint(game: GameSQL, session: AsyncSession = Depends(get_session)):
@@ -160,9 +160,6 @@ async def update_game_endpoint(game_id: int, updated_game: GameSQL, session: Asy
 
 @app.delete("/games/{game_id}", response_model=GameSQL, tags=["Delete Game"])
 async def delete_game_by_id_endpoint(game_id: int, session: AsyncSession = Depends(get_session)):
-    """
-    Delete a game by its ID.
-    """
     game = await session.get(GameSQL, game_id)
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")
@@ -171,9 +168,6 @@ async def delete_game_by_id_endpoint(game_id: int, session: AsyncSession = Depen
     return game
 @app.post("/consoles/", response_model=ConsoleSQL, tags=["Create Console"])
 async def create_console_endpoint(console: ConsoleSQL, session: AsyncSession = Depends(get_session)):
-    """
-    Crea una nueva consola.
-    """
     session.add(console)
     await session.commit()
     await session.refresh(console)
@@ -182,9 +176,6 @@ async def create_console_endpoint(console: ConsoleSQL, session: AsyncSession = D
 
 @app.get("/consoles/", response_model=List[ConsoleSQL], tags=["List Consoles"])
 async def list_consoles_endpoint(session: AsyncSession = Depends(get_session)):
-    """
-    Lista todas las consolas.
-    """
     result = await session.execute(select(ConsoleSQL))
     consoles = result.scalars().all()
     return consoles
@@ -193,9 +184,6 @@ async def list_consoles_endpoint(session: AsyncSession = Depends(get_session)):
 
 @app.get("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Get Console"])
 async def get_console_by_id_endpoint(console_id: int, session: AsyncSession = Depends(get_session)):
-    """
-    Obtiene una consola por su ID.
-    """
     console = await session.get(ConsoleSQL, console_id)
     if not console:
         raise HTTPException(status_code=404, detail="Consola no encontrada")
@@ -205,14 +193,10 @@ async def get_console_by_id_endpoint(console_id: int, session: AsyncSession = De
 
 @app.put("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Update Console"])
 async def update_console_endpoint(console_id: int, updated_console: ConsoleSQL, session: AsyncSession = Depends(get_session)):
-    """
-    Actualiza una consola por su ID.
-    """
     db_console = await session.get(ConsoleSQL, console_id)
     if not db_console:
         raise HTTPException(status_code=404, detail="Consola no encontrada")
 
-    # Update attributes
     db_console.Console_Name = updated_console.Console_Name
     db_console.Type = updated_console.Type
     db_console.Company = updated_console.Company
