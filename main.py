@@ -1,20 +1,244 @@
-from fastapi import FastAPI, HTTPException, Query
-from starlette.responses import JSONResponse
-from typing import List, Optional
+from fastapi import FastAPI, HTTPException, Depends, Path, Query
+from typing import List, Optional, Type
+from sqlmodel import Session, select
+from sqlmodel import *
+from typing import AsyncGenerator
+import os
+from dotenv import load_dotenv
+from pydantic import ConfigDict
+from db_connection import *
+from sqlmodels_db import *
 from models import *
 from operations import *
-
+from starlette.responses import JSONResponse
+import pandas as pd
 app = FastAPI()
 
-##ubicacion del proyecto en git_:
+@app.on_event("startup")
+async def startup_event():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
+
+
+async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLModel]):
+    try:
+        df = pd.read_csv(csv_file)
+    except FileNotFoundError:
+        print(f"Error: El archivo CSV '{csv_file}' no se encontró.")
+        return
+    except Exception as e:
+        print(f"Error al leer el archivo CSV: {e}")
+        return
+
+    for _, row in df.iterrows():
+        try:
+            # Crea un diccionario con los datos de la fila, manejando valores nulos y tipos
+            row_dict = {col.lower(): value if pd.notnull(value) else None for col, value in row.items()}
+
+            if model == GameSQL:
+                # Ensure 'rank' is not None
+                rank_value = row_dict.get('rank')
+                if rank_value is None:
+                    print(f"Skipping row with null 'Rank' value: {row_dict}")
+                    continue  # Skip this row
+
+                # Ensure 'review' is a string
+                review_value = row_dict.get('review')
+                if review_value is not None and not isinstance(review_value, str):
+                    review_value = str(review_value)
+
+                # Crea una instancia del modelo GameSQL
+                game_instance = GameSQL(
+                    index=row_dict.get('index'),
+                    Rank=rank_value,
+                    Game_Title=row_dict.get('game_title'),
+                    Platform=row_dict.get('platform'),
+                    Year=row_dict.get('year'),
+                    Genre=row_dict.get('genre'),
+                    Publisher=row_dict.get('publisher'),
+                    North_America=row_dict.get('north_america'),
+                    Europe=row_dict.get('europe'),
+                    Japan=row_dict.get('japan'),
+                    Rest_of_World=row_dict.get('rest_of_world'),
+                    Global=row_dict.get('global'),
+                    Review=review_value  # Use the converted review_value
+                )
+                session.add(game_instance)
+            elif model == ConsoleSQL:
+                # Crea una instancia del modelo ConsoleSQL
+                console_instance = ConsoleSQL(
+                    Id=row_dict.get('id'),
+                    Console_Name=row_dict.get('console_name'),
+                    Type=row_dict.get('type'),
+                    Company=row_dict.get('company'),
+                    Released_Year=row_dict.get('released_year'),
+                    Discontinuation_Year=row_dict.get('discontinuation_year'),
+                    Units_Sold=row_dict.get('units_sold')
+                )
+                session.add(console_instance)
+            else:
+                print(f"Error: Modelo no soportado: {model.__name__}")
+                return
+
+        except Exception as e:
+            print(f"Error al procesar la fila: {e}")
+            await session.rollback()  # Rollback en caso de error en una fila
+            continue  # Continuar con la siguiente fila
+
+    await session.commit()
+    print(f"Datos del archivo CSV '{csv_file}' importados a la tabla '{model.__tablename__}' exitosamente.")
+
+
+
+@app.get("/import-data/")
+async def import_data_endpoint(session: AsyncSession = Depends(get_session)):
+    await import_csv_data(session, "/home/dsar/Documentos/codes/FastAPIProject/games.csv", GameSQL)
+    await import_csv_data(session, "/home/dsar/Documentos/codes/FastAPIProject/consoles.csv", ConsoleSQL)
+    return {"message": "Importación de datos iniciada.  Por favor, revisa la consola para ver el resultado."}
+
+
+
+@app.on_event("startup")
+async def startup_event():
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 @app.get("/")
-def home():
-    return {"message": "so far so good!"}
+async def root():
+    return {"message": "Hello World"}
+
+@app.post("/games/", response_model=GameSQL, tags=["Create Game"])
+async def create_game_endpoint(game: GameSQL, session: AsyncSession = Depends(get_session)):
+    """
+    Create a new game.
+    """
+    session.add(game)
+    await session.commit()
+    await session.refresh(game)
+    return game
+
+@app.get("/games/", response_model=List[GameSQL], tags=["List Games"])
+async def list_games_endpoint(session: AsyncSession = Depends(get_session)):
+    result = await session.execute(select(GameSQL))
+    games = result.scalars().all()
+    return games
+
+@app.get("/games/{game_id}", response_model=GameSQL, tags=["Get Game"])
+async def get_game_by_id_endpoint(game_id: int, session: AsyncSession = Depends(get_session)):
+    game = await session.get(GameSQL, game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    return game
+
+@app.put("/games/{game_id}", response_model=GameSQL, tags=["Update Game"])
+async def update_game_endpoint(game_id: int, updated_game: GameSQL, session: AsyncSession = Depends(get_session)):
+    """
+    Update a game by its ID.
+    """
+    db_game = await session.get(GameSQL, game_id)
+    if not db_game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    # Update attributes
+    db_game.Game_Title = updated_game.Game_Title
+    db_game.Platform = updated_game.Platform
+    db_game.Year = updated_game.Year
+    db_game.Genre = updated_game.Genre
+    db_game.Publisher = updated_game.Publisher
+    db_game.North_America = updated_game.North_America
+    db_game.Europe = updated_game.Europe
+    db_game.Japan = updated_game.Japan
+    db_game.Rest_of_World = updated_game.Rest_of_World
+    db_game.Global = updated_game.Global
+    db_game.Review = updated_game.Review
+
+    session.add(db_game)
+    await session.commit()
+    await session.refresh(db_game)
+    return db_game
+
+@app.delete("/games/{game_id}", response_model=GameSQL, tags=["Delete Game"])
+async def delete_game_by_id_endpoint(game_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    Delete a game by its ID.
+    """
+    game = await session.get(GameSQL, game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+    await session.delete(game)
+    await session.commit()
+    return game
+@app.post("/consoles/", response_model=ConsoleSQL, tags=["Create Console"])
+async def create_console_endpoint(console: ConsoleSQL, session: AsyncSession = Depends(get_session)):
+    """
+    Crea una nueva consola.
+    """
+    session.add(console)
+    await session.commit()
+    await session.refresh(console)
+    return console
 
 
-@app.get("/games", response_model=List[GameWithId])
+@app.get("/consoles/", response_model=List[ConsoleSQL], tags=["List Consoles"])
+async def list_consoles_endpoint(session: AsyncSession = Depends(get_session)):
+    """
+    Lista todas las consolas.
+    """
+    result = await session.execute(select(ConsoleSQL))
+    consoles = result.scalars().all()
+    return consoles
+
+
+
+@app.get("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Get Console"])
+async def get_console_by_id_endpoint(console_id: int, session: AsyncSession = Depends(get_session)):
+    """
+    Obtiene una consola por su ID.
+    """
+    console = await session.get(ConsoleSQL, console_id)
+    if not console:
+        raise HTTPException(status_code=404, detail="Consola no encontrada")
+    return console
+
+
+
+@app.put("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Update Console"])
+async def update_console_endpoint(console_id: int, updated_console: ConsoleSQL, session: AsyncSession = Depends(get_session)):
+    """
+    Actualiza una consola por su ID.
+    """
+    db_console = await session.get(ConsoleSQL, console_id)
+    if not db_console:
+        raise HTTPException(status_code=404, detail="Consola no encontrada")
+
+    # Update attributes
+    db_console.Console_Name = updated_console.Console_Name
+    db_console.Type = updated_console.Type
+    db_console.Company = updated_console.Company
+    db_console.Released_Year = updated_console.Released_Year
+    db_console.Discontinuation_Year = updated_console.Discontinuation_Year
+    db_console.Units_Sold = updated_console.Units_Sold
+
+    session.add(db_console)
+    await session.commit()
+    await session.refresh(db_console)
+    return db_console
+
+
+
+@app.delete("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Delete Console"])
+async def delete_console_by_id_endpoint(console_id: int, session: AsyncSession = Depends(get_session)):
+    console = await session.get(ConsoleSQL, console_id)
+    if not console:
+        raise HTTPException(status_code=404, detail="Consola no encontrada")
+    await session.delete(console)
+    await session.commit()
+    return console
+
+
+###CSV
+app.get("/games", response_model=List[GameWithId])
 async def show_all_games(
         title: Optional[str] = Query(None),
         genre: Optional[str] = Query(None),
