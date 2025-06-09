@@ -23,7 +23,6 @@ CLEVER_DB = (
     f"{POSTGRESQL_ADDON_PORT}/"
     f"{POSTGRESQL_ADDON_DB}"
 )
-DATABASE_URL = "sqlite+aiosqlite:///.game&console.db"
 
 engine: AsyncEngine = create_async_engine(CLEVER_DB, echo=True)
 async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

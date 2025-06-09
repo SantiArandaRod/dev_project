@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Path, Query
+from fastapi import FastAPI, HTTPException, Depends, Path, Query, Request
 from typing import List, Optional, Type
 from sqlmodel import Session, select
 from sqlmodel import *
@@ -12,7 +12,14 @@ from models import *
 from operations import *
 from starlette.responses import JSONResponse
 import pandas as pd
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates/")
+
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -92,7 +99,7 @@ async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLM
 
 
 @app.get("/import-data/")
-async def import_data_endpoint(session: AsyncSession = Depends(get_session)):
+async def import_data_endpoint(session: AsyncSession = Depends(get_session),):
     await import_csv_data(session, "data/games.csv", GameSQL)
     await import_csv_data(session, "data/consoles.csv", ConsoleSQL)
     return {"message": "Importación de datos iniciada y exitosa."}
@@ -104,15 +111,12 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    return {"message": "hola, este es el proyecto de Desarrollo de Software. By: David Santiago Aranda Rodriguez"}
-
+    with open("static/index.html", encoding="utf-8") as f:
+        return f.read()
 @app.post("/games/", response_model=GameSQL, tags=["Create Game"])
 async def create_game_endpoint(game: GameSQL, session: AsyncSession = Depends(get_session)):
-    """
-    Create a new game.
-    """
     session.add(game)
     await session.commit()
     await session.refresh(game)
@@ -222,7 +226,7 @@ async def delete_console_by_id_endpoint(console_id: int, session: AsyncSession =
 
 
 ###CSV
-app.get("/games", response_model=List[GameWithId])
+app.get("/games-csv", response_model=List[GameWithId])
 async def show_all_games(
         title: Optional[str] = Query(None),
         genre: Optional[str] = Query(None),

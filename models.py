@@ -5,7 +5,7 @@ class Game(BaseModel):
     Rank: int = Field(..., gt=-1)
     Game_Title: str = Field(..., min_length=1, max_length=500)
     Platform: str = Field(..., min_length=1, max_length=50)
-    Year: Optional[float] = Field(..., gt=-1, lt=2030)
+    Year: Optional[float] = Field(None, gt=-1, lt=2030)
     Genre: str = Field(..., min_length=1, max_length=500)
     Publisher: str = Field(..., min_length=1, max_length=500)
     North_America: float = Field(..., ge=-1)
@@ -59,4 +59,4 @@ class UpdatedConsole(BaseModel):
     Company: Optional[str]
     Released_Year: Optional[int]
     Discontinuation_Year: Optional[int]
-    Units_Sold: Optional[int]
+    Units_Sold: Optional[float]
