@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Listado de Videojuegos</h2>
+<table>
+  <tr>
+    <th>Título</th>
+    <th>Consola</th>
+    <th>Año</th>
+    <th>Ventas Globales</th>
+  </tr>
+  {% for juego in videojuegos %}
+  <tr>
+    <td>{{ juego['game title'] }}</td>
+    <td>{{ juego['platform'] }}</td>
+    <td>{{ juego['year'] }}</td>
+    <td>{{ juego['global'] }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

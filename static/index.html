@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+<link rel="stylesheet" href="/static/styles.css" />
+{% block content %}
+<h2>Top Juegos Más Vendidos por Consola</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Consola</th>
+            <th>Unidades vendidas</th>
+            <th>Juego Top</th>
+            <th>Ventas globales</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in games %}
+        <tr>
+            <td>{{ item.console }}</td>
+            <td>{{ "{:,}".format(item.units_sold) }}</td>
+            <td>{{ item.top_game }}</td>
+            <td>{{ "{:,}".format(item.global_sales) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
