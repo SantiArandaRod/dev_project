@@ -6,7 +6,6 @@ from sqlmodel import Field
 from typing import Optional
 
 class GameBase(SQLModel):
-    index: int = Field(default=None)
     Rank: int = Field(..., gt=-1)
     Game_Title: str = Field(..., min_length=1, max_length=500)
     Platform: str = Field(..., min_length=1, max_length=50)

@@ -77,3 +77,17 @@ async def get_games_paginated(session: AsyncSession, skip: int = 0, limit: int =
     statement = select(GameSQL).offset(skip).limit(limit)
     result = await session.exec(statement)
     return result.all()
+async def get_game_key(session: Session, name: str):
+    statement = select(GameSQL).where(GameSQL.Game_Title.ilike(f"%{name}%"))
+    result = await session.exec(statement)
+    return result.all()
+
+async def get_console_key(session: Session, name: str):
+    statement = select(ConsoleSQL).where(ConsoleSQL.Console_Name.ilike(f"%{name}%"))
+    result = await session.exec(statement)
+    return result.all()
+
+def parse_float(value: str) -> float | None:
+    if not value or value.strip() == "":
+        return None
+    return float(value.replace(",", "."))

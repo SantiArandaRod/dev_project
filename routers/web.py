@@ -1,10 +1,8 @@
-from select import select
-
-from fastapi import APIRouter, Request, Depends, Form, HTTPException, FastAPI
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, FastAPI, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select, func
-
+from db_ops import parse_float
 from db_connection import get_session
 from sqlmodels_db import ConsoleSQL, GameSQL
 import db_ops as crud  # Debe tener funciones para games y consoles
@@ -42,6 +40,23 @@ async def consoles_list(
         "page": page,
         "total_pages": total_pages
     })
+from fastapi import Request, Query
+
+@router.get("/consoles/search", response_class=HTMLResponse)
+async def search_consoles(
+    request: Request,
+    q: str = Query(...),
+    session: Session = Depends(get_session)
+):
+    results = await crud.get_console_key(session, q)
+    return templates.TemplateResponse("consoles/consoles.html", {
+        "request": request,
+        "consoles": results,
+        "show_actions": True,
+        "page": 1,
+        "total_pages": 1
+    })
+
 
 @router.get("/consoles/{console_id}", response_class=HTMLResponse)
 async def one_console(request: Request, console_id: int, session: Session = Depends(get_session)):
@@ -113,19 +128,40 @@ async def games_list(request: Request, session: Session = Depends(get_session), 
         "page": page,
         "total_pages": total_pages,
     })
+@router.get("/games/search", response_class=HTMLResponse)
+async def search_games(
+    request: Request,
+    q: str = "",
+    page: int = 1,
+    session: Session = Depends(get_session)
+):
+    PAGE_SIZE = 10  # o el tamaño que uses normalmente
+    all_results = await crud.get_game_key(session, q)
+    total_results = len(all_results)
+    total_pages = (total_results + PAGE_SIZE - 1) // PAGE_SIZE
+
+    start = (page - 1) * PAGE_SIZE
+    end = start + PAGE_SIZE
+    paginated_results = all_results[start:end]
+
+    return templates.TemplateResponse("games/games.html", {
+        "request": request,
+        "games": paginated_results,
+        "page": page,
+        "total_pages": total_pages,
+        "query": q
+    })
 
 
 @router.get("/games/{game_id}", response_class=HTMLResponse)
-async def one_game(request: Request, game_id: int, session: Session = Depends(get_session)):
-    game = await crud.get_game(session, game_id)
-    if game is None:
-        raise HTTPException(status_code=404, detail="Game not found")
+async def get_game_by_id(request: Request, game_id: int, session: Session = Depends(get_session)):
+    game = await session.get(GameSQL, game_id)
+    if not game:
+        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
     return templates.TemplateResponse("games/detail.html", {
         "request": request,
-        "game": game,
-        "show_actions": True
+        "game": game
     })
-
 
 @router.get("/games/{game_id}/edit", response_class=HTMLResponse)
 async def edit_game(request: Request, game_id: int, session: Session = Depends(get_session)):
