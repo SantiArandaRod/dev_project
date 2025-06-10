@@ -1,6 +1,6 @@
 {% set view_type = view_type or 'card' %}
 {% set show_actions = show_actions if show_actions is not none else true %}
-
+{% for game in games %}
 <div class="card">
   <h2>{{ game.Game_Title }}</h2>
   <p><strong>Rank:</strong> {{ game.Rank }}</p>
@@ -22,3 +22,4 @@
     </div>
   {% endif %}
 </div>
+{% endfor %}

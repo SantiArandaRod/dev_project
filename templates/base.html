@@ -2,59 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Consolas {% endblock %}</title>
+
+    <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
+
+    <!-- Material Design Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="https://zglfsrorntifwejtpmjq.supabase.co/storage/v1/object/public/pet.images/image/favicon.svg">
 
-
-
-    <title>{% block title%} Pets by sigmotoa {% endblock %}</title>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
- <div class="content">
-{% include 'includes/navbar.html' %}
+    <!-- Navbar común -->
+    {% include 'includes/navbar.html' %}
 
-<main>
+    <!-- Contenido principal -->
+    <section class="section">
+        <div class="container">
+            {% block content %}
+            <!-- Aquí se inserta el contenido específico de cada página -->
+            {% endblock %}
+        </div>
+    </section>
 
-        {% block content %} {% endblock %}
+    <!-- Footer común -->
+    {% include 'includes/footer.html' %}
 
-</main>
-
-{% include 'includes/footer.html' %}
-     </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const burgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-
-        // Activar el toggle
-        burgers.forEach(burger => {
-            burger.addEventListener('click', () => {
-                const target = burger.dataset.target;
-                const targetElement = document.getElementById(target);
-
-                burger.classList.toggle('is-active');
-                targetElement.classList.toggle('is-active');
+    <!-- Scripts comunes -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const burgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+            burgers.forEach(burger => {
+                burger.addEventListener('click', () => {
+                    const target = burger.dataset.target;
+                    const targetElement = document.getElementById(target);
+                    burger.classList.toggle('is-active');
+                    targetElement.classList.toggle('is-active');
+                });
             });
         });
-    });
-</script>
+    </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const fileInput = document.getElementById('image');
-        const fileName = document.getElementById('file-name');
-
-        if (fileInput && fileName) {
-            fileInput.addEventListener('change', () => {
-                if (fileInput.files.length > 0) {
-                    fileName.textContent = fileInput.files[0].name;
-                } else {
-                    fileName.textContent = 'No file selected';
-                }
-            });
-        }
-    });
-</script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -1,5 +1,5 @@
-{% set view_type = view_type or 'card' %}
-{% set show_actions = show_actions if show_actions is not none else true %}
+
+{% for console in consoles %}
 <div class="card">
   <h2>{{ console.Console_Name }}</h2>
   <p><strong>ID:</strong> {{ console.Id }}</p>
@@ -16,3 +16,4 @@
     </div>
   {% endif %}
 </div>
+{% endfor %}

@@ -1,10 +1,51 @@
-<nav class="navbar">
-    <div class="navbar-title">📊 Juegos por Consola</div>
-    <ul class="navbar-links">
-        <li><a href="/">Inicio</a></li>
-        <li><a href="/api/top-game-per-console-ordered">API</a></li>
-  <a href="/">Inicio</a>
-  <a href="/videojuegos">Videojuegos</a>
-  <a href="/consolas">Consolas</a>
-    </ul>
+<nav class="navbar" role="navigation" aria-label="main navigation" style="overflow:visible; z-index: 10;">
+  <div class="navbar-brand">
+    <a class="navbar-item" href="/web/">
+      GameDB
+    </a>
+
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarGameApp">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+
+  <div id="navbarGameApp" class="navbar-menu">
+    <div class="navbar-start">
+      <a class="navbar-item" href="/web/games">
+        Juegos
+      </a>
+
+      <a class="navbar-item" href="/web/consoles">
+        Consolas
+      </a>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <div class="buttons">
+          <a class="button is-primary" href="/web/games/new">
+            <strong>+ Adicionar Juego</strong>
+          </a>
+          <a class="button is-link" href="/web/consoles/new">
+            + Adicionar Consola
+          </a>
+        </div>
+      </div>
+
+      <div class="navbar-item">
+        <form class="field is-grouped" action="/web/games/search" method="get">
+          <p class="control is-expanded">
+            <input id="q" class="input" type="text" name="q" placeholder="Buscar juego..." required>
+          </p>
+          <p class="control">
+            <button type="submit" class="button is-info">
+              Buscar
+            </button>
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
 </nav>

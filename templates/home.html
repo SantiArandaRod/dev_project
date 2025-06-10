@@ -1,10 +1,47 @@
+<!-- templates/home.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Inicio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 50px;
+        }
+        h1 {
+            margin-bottom: 40px;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        a.button {
+            display: inline-block;
+            padding: 15px 25px;
+            font-size: 16px;
+            color: white;
+            background-color: #4CAF50;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+        a.button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-
+    <h1>Bienvenido a la Plataforma</h1>
+    <div class="btn-container">
+        <a href="/web/consoles" class="button">Consolas</a>
+        <a href="/web/games" class="button">Videojuegos</a>
+        <a href="/web/about" class="button">Sobre Nosotros</a>
+    </div>
 </body>
 </html>
