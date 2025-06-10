@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Juego</title>
+    <link rel="stylesheet" href="/statics/style.css"> {# ASEGÚRATE DE QUE ESTA RUTA ES CORRECTA #}
+</head>
+<body>
+    <header>
+        <h1>Gestión de Juegos y Consolas</h1>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/games/view">Ver Juegos</a>
+            <a href="/consoles/view">Ver Consolas</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Editar Juego: {{ game.Game_Title }} (ID: {{ game.index }})</h2> {# Usa game.index aquí #}
+
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+
+        <form action="/games/{{ game.index }}/edit" method="post"> {# LA ACCIÓN DEBE APUNTAR A /games/ #}
+            <label for="Rank">Rank:</label>
+            <input type="number" id="Rank" name="Rank" value="{{ game.Rank }}" required><br>
+
+            <label for="Game_Title">Título del Juego:</label>
+            <input type="text" id="Game_Title" name="Game_Title" value="{{ game.Game_Title }}" required><br>
+
+            <label for="Platform">Plataforma:</label>
+            <input type="text" id="Platform" name="Platform" value="{{ game.Platform }}" required><br>
+
+            <label for="Year">Año:</label>
+            <input type="number" id="Year" name="Year" value="{{ game.Year }}" required><br>
+
+            <label for="Genre">Género:</label>
+            <input type="text" id="Genre" name="Genre" value="{{ game.Genre }}" required><br>
+
+            <label for="Publisher">Editor:</label>
+            <input type="text" id="Publisher" name="Publisher" value="{{ game.Publisher }}" required><br>
+
+            <label for="North_America">Ventas NA (millones):</label>
+            <input type="number" step="0.01" id="North_America" name="North_America" value="{{ '%.2f'|format(game.North_America) if game.North_America is not none else '' }}"><br>
+
+            <label for="Europe">Ventas EU (millones):</label>
+            <input type="number" step="0.01" id="Europe" name="Europe" value="{{ '%.2f'|format(game.Europe) if game.Europe is not none else '' }}"><br>
+
+            <label for="Japan">Ventas JP (millones):</label>
+            <input type="number" step="0.01" id="Japan" name="Japan" value="{{ '%.2f'|format(game.Japan) if game.Japan is not none else '' }}"><br>
+
+            <label for="Rest_of_World">Ventas Resto (millones):</label>
+            <input type="number" step="0.01" id="Rest_of_World" name="Rest_of_World" value="{{ '%.2f'|format(game.Rest_of_World) if game.Rest_of_World is not none else '' }}"><br>
+
+            <label for="Global">Ventas Globales (millones):</label>
+            <input type="number" step="0.01" id="Global" name="Global" value="{{ '%.2f'|format(game.Global) if game.Global is not none else '' }}"><br>
+
+            <label for="Review">Review:</label>
+            <textarea id="Review" name="Review">{{ game.Review if game.Review is not none else '' }}</textarea><br>
+
+            <button type="submit">Actualizar Juego</button>
+            <a href="/games/view" class="button-link">Cancelar</a> {# EL ENLACE DE CANCELAR DEBE VOLVER A JUEGOS #}
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mi Colección de Juegos y Consolas. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

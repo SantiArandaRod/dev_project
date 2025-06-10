@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Consola</title>
+    <link rel="stylesheet" href="/statics/style.css">
+</head>
+<body>
+    <header>
+        <h1>Gestión de Juegos y Consolas</h1>
+        <nav>
+            <a href="/">Inicio</a>
+            <a href="/games/view">Ver Juegos</a>
+            <a href="/consoles/view">Ver Consolas</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Editar Consola: {{ console.Console_Name }} (ID: {{ console.id }})</h2>
+
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+
+        <form action="/consoles/{{ console.id }}/edit" method="post">
+            <label for="Console_Name">Nombre de la Consola:</label>
+            <input type="text" id="Console_Name" name="Console_Name" value="{{ console.Console_Name }}" required><br>
+
+            <label for="Type">Tipo:</label>
+            <input type="text" id="Type" name="Type" value="{{ console.Type }}" required><br>
+
+            <label for="Company">Compañía:</label>
+            <input type="text" id="Company" name="Company" value="{{ console.Company }}" required><br>
+
+            <label for="Released_Year">Año de Lanzamiento:</label>
+            <input type="number" id="Released_Year" name="Released_Year" value="{{ console.Released_Year }}" required><br>
+
+            <label for="Discontinuation_Year">Año de Descontinuación:</label>
+            <input type="number" id="Discontinuation_Year" name="Discontinuation_Year" value="{{ console.Discontinuation_Year if console.Discontinuation_Year is not none else '' }}"><br>
+
+            <label for="Units_Sold">Unidades Vendidas (millones):</label>
+            <input type="number" step="0.01" id="Units_Sold" name="Units_Sold" value="{{ '%.1f'|format(console.Units_Sold) if console.Units_Sold is not none else '' }}"><br>
+
+            <button type="submit">Actualizar Consola</button>
+            <a href="/consoles/view" class="button-link">Cancelar</a>
+        </form>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Mi Colección de Juegos y Consolas. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
