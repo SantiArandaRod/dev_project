@@ -59,7 +59,6 @@ async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLM
 
                 # Crea una instancia del modelo GameSQL
                 game_instance = GameSQL(
-                    index=row_dict.get('index'),
                     Rank=rank_value,
                     Game_Title=row_dict.get('game_title'),
                     Platform=row_dict.get('platform'),
