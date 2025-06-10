@@ -1,9 +1,7 @@
-{# templates/includes/navbar.html #}
-<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+<nav class="navbar is-primary" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item" href="/">
-      <img src="[https://zglfsrorntifwejtpmjq.supabase.co/storage/v1/object/public/pet.images/image/favicon.svg](https://zglfsrorntifwejtpmjq.supabase.co/storage/v1/object/public/pet.images/image/favicon.svg)" alt="Logo">
-      <span class="ml-2 has-text-weight-bold is-size-5">Mi Colección</span>
+      <img src="/statics/img2.jpg" alt="Logo" width="112" height="28">
     </a>
 
     <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
@@ -17,49 +15,61 @@
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
       <a class="navbar-item" href="/">
-        <span class="icon"><i class="mdi mdi-home"></i></span>
-        <span>Inicio</span>
+        Inicio
       </a>
-  <a class="navbar-item" href="/consoles/archived">
-            Ver Todas las consolas archivadas
-          </a>
-          <a class="navbar-item" href="/games/archived">
-            Ver Todos los juegos archivados
-          </a>
+
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
-          <span class="icon"><i class="mdi mdi-gamepad-variant"></i></span>
-          <span>Juegos</span>
+          Juegos
         </a>
         <div class="navbar-dropdown">
           <a class="navbar-item" href="/games/view">
             Ver Todos
           </a>
-          <a class="navbar-item" href="/games/create">
-            Crear Nuevo
+          <a class="navbar-item" href="/games/create"> {# ENLACE NUEVO: AÑADIR JUEGO #}
+            Crear Nuevo Juego
+          </a>
+          <a class="navbar-item" href="/games/archived">
+            Juegos Archivados
           </a>
         </div>
       </div>
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
-          <span class="icon"><i class="mdi mdi-console"></i></span>
-          <span>Consolas</span>
+          Consolas
         </a>
         <div class="navbar-dropdown">
           <a class="navbar-item" href="/consoles/view">
             Ver Todas
           </a>
-          <a class="navbar-item" href="/consoles/create">
-            Crear Nueva
+          <a class="navbar-item" href="/consoles/create"> {# ENLACE NUEVO: AÑADIR CONSOLA #}
+            Crear Nueva Consola
+          </a>
+          <a class="navbar-item" href="/consoles/archived">
+            Consolas Archivadas
           </a>
         </div>
       </div>
 
-      <a class="navbar-item" href="/about">
-        <span class="icon"><i class="mdi mdi-information-variant"></i></span>
-        <span>Acerca de</span>
+      <a class="navbar-item" href="/subscribers">
+        Suscriptores
       </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Más Información
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/about">
+            Sobre el Proyecto
+          </a>
+          <a class="navbar-item" href="/about_me">
+            Sobre Mí
+          </a>
+        </div>
+      </div>
+
     </div>
 
     <div class="navbar-end">
