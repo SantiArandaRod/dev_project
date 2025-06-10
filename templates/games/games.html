@@ -6,6 +6,7 @@
 {% block content %}
     <h1 class="title has-text-centered is-2">Lista de Juegos</h1>
 
+    {# Formulario para ir a una página específica #}
     <div class="field is-grouped is-grouped-centered mb-5">
         <div class="control">
             <form action="{{ request.url.path }}" method="get" class="field has-addons">
@@ -21,6 +22,17 @@
         </div>
     </div>
 
+    {# Formulario de búsqueda #}
+    <form action="/games/search" method="get" class="field has-addons is-centered mb-5">
+        <div class="control is-expanded">
+            <input class="input" type="text" name="q" placeholder="Buscar juego por nombre" value="{{ query if query is not none else '' }}">
+        </div>
+        <div class="control">
+            <button class="button is-info" type="submit">Buscar</button>
+        </div>
+    </form>
+
+
     {% if games %}
         <div class="table-container">
             <table class="table is-fullwidth is-striped is-hoverable is-bordered">
@@ -33,6 +45,7 @@
                         <th>Género</th>
                         <th>Editor</th>
                         <th>Review</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,6 +58,14 @@
                         <td>{{ game.Genre }}</td>
                         <td>{{ game.Publisher }}</td>
                         <td>{{ game.Review if game.Review is not none else 'N/A' }}</td>
+                        <td>
+                            <div class="buttons are-small"> {# Contenedor para los botones #}
+                                <a href="/games/{{ game.index }}/edit" class="button is-warning">Editar</a>
+                                <form action="/games/{{ game.index }}/delete" method="post" style="display:inline;"> {# Formulario para Eliminar #}
+                                    <button type="submit" class="button is-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar este juego?');">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -54,22 +75,23 @@
         <p class="notification is-info has-text-centered">No hay juegos disponibles en este momento.</p>
     {% endif %}
 
+    {# Controles de paginación #}
     <nav class="pagination is-centered mt-5" role="navigation" aria-label="pagination">
         {% if page > 1 %}
-            <a class="pagination-previous" href="?page={{ page - 1 }}">Anterior</a>
+            <a class="pagination-previous" href="?page={{ page - 1 }}{% if query %}&q={{ query }}{% endif %}">Anterior</a>
         {% else %}
             <a class="pagination-previous" disabled>Anterior</a>
         {% endif %}
 
         {% if page < total_pages %}
-            <a class="pagination-next" href="?page={{ page + 1 }}">Siguiente</a>
+            <a class="pagination-next" href="?page={{ page + 1 }}{% if query %}&q={{ query }}{% endif %}">Siguiente</a>
         {% else %}
             <a class="pagination-next" disabled>Siguiente</a>
         {% endif %}
 
         <ul class="pagination-list">
             {% if page > 2 %}
-                <li><a class="pagination-link" href="?page=1">1</a></li>
+                <li><a class="pagination-link" href="?page=1{% if query %}&q={{ query }}{% endif %}">1</a></li>
             {% endif %}
 
             {% if page > 3 %}
@@ -79,7 +101,7 @@
             {% for p in range(page - 1, page + 2) %}
                 {% if 1 <= p <= total_pages %}
                     <li>
-                        <a class="pagination-link {% if p == page %}is-current{% endif %}" href="?page={{ p }}">{{ p }}</a>
+                        <a class="pagination-link {% if p == page %}is-current{% endif %}" href="?page={{ p }}{% if query %}&q={{ query }}{% endif %}">{{ p }}</a>
                     </li>
                 {% endif %}
             {% endfor %}
@@ -89,18 +111,8 @@
             {% endif %}
 
             {% if page < total_pages - 1 %}
-                <li><a class="pagination-link" href="?page={{ total_pages }}">{{ total_pages }}</a></li>
+                <li><a class="pagination-link" href="?page={{ total_pages }}{% if query %}&q={{ query }}{% endif %}">{{ total_pages }}</a></li>
             {% endif %}
         </ul>
-        <form action="/games/search" method="get" class="field has-addons is-centered mt-5">
-  <div class="control">
-    <input class="input" type="text" name="q" placeholder="Buscar juego por nombre" required>
-  </div>
-  <div class="control">
-    <button class="button is-info" type="submit">Buscar</button>
-  </div>
-</form>
-
     </nav>
-
 {% endblock %}
