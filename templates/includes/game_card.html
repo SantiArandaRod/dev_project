@@ -1,20 +1,24 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Listado de Videojuegos</h2>
-<table>
-  <tr>
-    <th>Título</th>
-    <th>Consola</th>
-    <th>Año</th>
-    <th>Ventas Globales</th>
-  </tr>
-  {% for juego in videojuegos %}
-  <tr>
-    <td>{{ juego['game title'] }}</td>
-    <td>{{ juego['platform'] }}</td>
-    <td>{{ juego['year'] }}</td>
-    <td>{{ juego['global'] }}</td>
-  </tr>
-  {% endfor %}
-</table>
-{% endblock %}
+{% set view_type = view_type or 'card' %}
+{% set show_actions = show_actions if show_actions is not none else true %}
+
+<div class="card">
+  <h2>{{ game.Game_Title }}</h2>
+  <p><strong>Rank:</strong> {{ game.Rank }}</p>
+  <p><strong>Platform:</strong> {{ game.Platform }}</p>
+  <p><strong>Year:</strong> {{ game.Year }}</p>
+  <p><strong>Genre:</strong> {{ game.Genre }}</p>
+  <p><strong>Publisher:</strong> {{ game.Publisher }}</p>
+  <p><strong>North America Sales:</strong> {{ game.North_America }} M</p>
+  <p><strong>Europe Sales:</strong> {{ game.Europe }} M</p>
+  <p><strong>Japan Sales:</strong> {{ game.Japan }} M</p>
+  <p><strong>Rest of World Sales:</strong> {{ game.Rest_of_World }} M</p>
+  <p><strong>Global Sales:</strong> {{ game.Global }} M</p>
+  <p><strong>Review:</strong> {{ game.Review }}</p>
+
+  {% if show_actions %}
+    <div class="actions">
+      <a href="/games/{{ game.id }}/edit" class="btn btn-primary">Editar</a>
+      <a href="/games/{{ game.id }}/delete" class="btn btn-danger">Eliminar</a>
+    </div>
+  {% endif %}
+</div>
