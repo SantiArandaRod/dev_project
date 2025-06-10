@@ -2,7 +2,7 @@
 <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
     <a class="navbar-item" href="/">
-      <img src="/statics/img.jpg" alt="Logo">
+      <img src="[https://zglfsrorntifwejtpmjq.supabase.co/storage/v1/object/public/pet.images/image/favicon.svg](https://zglfsrorntifwejtpmjq.supabase.co/storage/v1/object/public/pet.images/image/favicon.svg)" alt="Logo">
       <span class="ml-2 has-text-weight-bold is-size-5">Mi Colección</span>
     </a>
 
@@ -13,12 +13,6 @@
       <span aria-hidden="true"></span>
     </a>
   </div>
-  {# templates/includes/navbar.html (fragmento del navbar-start) #}
-  <a class="navbar-item" href="/about"> {# ¡Añade esta línea! #}
-    <span class="icon"><i class="mdi mdi-information-variant"></i></span>
-    <span>Acerca de</span>
-  </a>
-</div>
 
   <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
@@ -26,13 +20,40 @@
         <span class="icon"><i class="mdi mdi-home"></i></span>
         <span>Inicio</span>
       </a>
-      <a class="navbar-item" href="/games/view">
-        <span class="icon"><i class="mdi mdi-gamepad-variant"></i></span>
-        <span>Juegos</span>
-      </a>
-      <a class="navbar-item" href="/consoles/view">
-        <span class="icon"><i class="mdi mdi-console"></i></span>
-        <span>Consolas</span>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon"><i class="mdi mdi-gamepad-variant"></i></span>
+          <span>Juegos</span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/games/view">
+            Ver Todos
+          </a>
+          <a class="navbar-item" href="/games/create">
+            Crear Nuevo
+          </a>
+        </div>
+      </div>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          <span class="icon"><i class="mdi mdi-console"></i></span>
+          <span>Consolas</span>
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="/consoles/view">
+            Ver Todas
+          </a>
+          <a class="navbar-item" href="/consoles/create">
+            Crear Nueva
+          </a>
+        </div>
+      </div>
+
+      <a class="navbar-item" href="/about">
+        <span class="icon"><i class="mdi mdi-information-variant"></i></span>
+        <span>Acerca de</span>
       </a>
     </div>
 
