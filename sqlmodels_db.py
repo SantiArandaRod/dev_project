@@ -92,3 +92,8 @@ class ArchivedConsoleSQL(SQLModel, table=True):
     Discontinuation_Year: Optional[int] = Field(default=None)
     Units_Sold: Optional[float] = Field(default=None)
     archived_at: datetime = Field(default_factory=datetime.now) # Marca de tiempo de archivado
+
+class Subscriber(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(index=True, unique=True) # El email será único y se podrá buscar
+    subscribed_at: datetime = Field(default_factory=datetime.now)
