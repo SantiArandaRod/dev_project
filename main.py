@@ -15,8 +15,10 @@ import pandas as pd
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from routers import web
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.include_router(web.router, prefix="/web")
 templates = Jinja2Templates(directory="templates/")
 
 
@@ -111,10 +113,7 @@ async def startup_event():
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    with open("static/index.html", encoding="utf-8") as f:
-        return f.read()
+
 @app.post("/games/", response_model=GameSQL, tags=["Create Game"])
 async def create_game_endpoint(game: GameSQL, session: AsyncSession = Depends(get_session)):
     session.add(game)
