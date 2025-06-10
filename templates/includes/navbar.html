@@ -1,50 +1,45 @@
-<nav class="navbar" role="navigation" aria-label="main navigation" style="overflow:visible; z-index: 10;">
+{# templates/includes/navbar.html #}
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
   <div class="navbar-brand">
-    <a class="navbar-item" href="/web/">
-      GameDB
+    <a class="navbar-item" href="/">
+      <img src="/statics/img.jpg" alt="Logo">
+      <span class="ml-2 has-text-weight-bold is-size-5">Mi Colección</span>
     </a>
 
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarGameApp">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+      <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
       <span aria-hidden="true"></span>
     </a>
   </div>
+  {# templates/includes/navbar.html (fragmento del navbar-start) #}
+  <a class="navbar-item" href="/about"> {# ¡Añade esta línea! #}
+    <span class="icon"><i class="mdi mdi-information-variant"></i></span>
+    <span>Acerca de</span>
+  </a>
+</div>
 
-  <div id="navbarGameApp" class="navbar-menu">
+  <div id="navbarBasicExample" class="navbar-menu">
     <div class="navbar-start">
-      <a class="navbar-item" href="/web/games">
-        Juegos
+      <a class="navbar-item" href="/">
+        <span class="icon"><i class="mdi mdi-home"></i></span>
+        <span>Inicio</span>
       </a>
-
-      <a class="navbar-item" href="/web/consoles">
-        Consolas
+      <a class="navbar-item" href="/games/view">
+        <span class="icon"><i class="mdi mdi-gamepad-variant"></i></span>
+        <span>Juegos</span>
+      </a>
+      <a class="navbar-item" href="/consoles/view">
+        <span class="icon"><i class="mdi mdi-console"></i></span>
+        <span>Consolas</span>
       </a>
     </div>
 
     <div class="navbar-end">
       <div class="navbar-item">
         <div class="buttons">
-          <a class="button is-primary" href="/web/games/new">
-            <strong>+ Adicionar Juego</strong>
-          </a>
-          <a class="button is-link" href="/web/consoles/new">
-            + Adicionar Consola
-          </a>
-        </div>
-      </div>
-
-      <div class="navbar-item">
-        <form class="field is-grouped" action="/web/games/search" method="get">
-          <p class="control is-expanded">
-            <input id="q" class="input" type="text" name="q" placeholder="Buscar juego..." required>
-          </p>
-          <p class="control">
-            <button type="submit" class="button is-info">
-              Buscar
-            </button>
-          </p>
-        </form>
+          </div>
       </div>
     </div>
   </div>

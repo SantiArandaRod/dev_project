@@ -1,47 +1,28 @@
-<!-- templates/home.html -->
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Inicio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 50px;
-        }
-        h1 {
-            margin-bottom: 40px;
-        }
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        a.button {
-            display: inline-block;
-            padding: 15px 25px;
-            font-size: 16px;
-            color: white;
-            background-color: #4CAF50;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-        }
-        a.button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <h1>Bienvenido a la Plataforma</h1>
-    <div class="btn-container">
-        <a href="/web/consoles" class="button">Consolas</a>
-        <a href="/web/games" class="button">Videojuegos</a>
-        <a href="/web/about" class="button">Sobre Nosotros</a>
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Colección{% endblock %}
+
+{% block content %}
+<div class="content has-text-centered">
+    <h1 class="title is-2">Bienvenido</h1>
+    <p class="subtitle is-4">Explora nuestras colecciones de videojuegos y consolas.</p>
+
+    <div class="buttons is-centered mt-5">
+        <a href="/games/view" class="button is-primary is-medium">
+            <span class="icon"><i class="mdi mdi-gamepad-variant"></i></span>
+            <span>Ver todos los juegos</span>
+        </a>
+        <a href="/consoles/view" class="button is-link is-medium">
+            <span class="icon"><i class="mdi mdi-television-classic"></i></span>
+            <span>Ver todas las consolas</span>
+        </a>
     </div>
-</body>
-</html>
+
+    <div class="mt-6">
+        <a href="/about" class="button is-light is-medium">
+            <span class="icon"><i class="mdi mdi-information-outline"></i></span>
+            <span>Sobre nosotros</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
