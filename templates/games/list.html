@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+{% for game in games %}
+
+{% include 'includes/game_card.html'%}
+
+{% endfor %}
+
+
+{% endblock %}
