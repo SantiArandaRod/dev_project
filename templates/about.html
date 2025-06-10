@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}Acerca de Nosotros - Mi Colección{% endblock %}
+{% block title %}Acerca del proyecto - Mi Colección{% endblock %}
 
 {% block content %}
 <section class="hero is-primary is-medium">
   <div class="hero-body">
     <div class="container">
       <p class="title is-1 has-text-centered">
-        Sobre Nosotros
+        Sobre el proyecto
       </p>
       <p class="subtitle is-4 has-text-centered">
-        Descubre la pasión detrás de esta colección de videojuegos y consolas.
+        Descubre información no del diario vivir, detrás de esta colección de videojuegos y consolas.
       </p>
     </div>
   </div>
@@ -20,12 +20,12 @@
   <div class="columns is-multiline is-centered">
     <div class="column is-8">
       <div class="box">
-        <h2 class="title is-3">Nuestra Misión</h2>
+        <h2 class="title is-3">Nuestro Objetivo</h2>
         <p class="content is-medium">
-          En "Mi Colección", nos dedicamos a ser el punto de encuentro definitivo para los amantes de los videojuegos y las consolas. Nuestra misión es simple: catalogar y compartir información detallada sobre la historia y el legado de la industria de los videojuegos, desde los clásicos atemporales hasta las innovaciones más recientes. Creemos que cada juego y cada consola tienen una historia que contar, y estamos aquí para ayudarte a explorarla.
+          En "La Colección", nos dedicamos a ser el punto de encuentro definitivo para los amantes de los videojuegos y las consolas. Nuestro objetivo es simple: catalogar y compartir información detallada sobre la historia y el legado de la industria de los videojuegos, desde los clásicos atemporales hasta las innovaciones más recientes. Creemos que cada juego y cada consola tienen una historia que contar, y escuchar.
         </p>
         <p class="content is-medium">
-          Ya seas un coleccionista experimentado, un entusiasta de la historia de los videojuegos, o simplemente alguien que busca revivir viejos recuerdos, "Mi Colección" está diseñado para ti. Nos esforzamos por ofrecer datos precisos y una experiencia de usuario intuitiva, facilitando la exploración y el descubrimiento.
+          Ya seas un coleccionista experimentado, un entusiasta de la historia de los videojuegos, o simplemente alguien que busca revivir viejos recuerdos, "La Colección" está diseñado para ti. Nos esforzamos por ofrecer datos precisos y una experiencia de usuario cómoda, facilitando la exploración y el descubrimiento.
         </p>
       </div>
     </div>
@@ -46,12 +46,30 @@
 
     <div class="column is-8">
       <div class="box">
-        <h2 class="title is-3">Nuestro Equipo</h2>
+        <h2 class="title is-3">Tendremos Mejoras en nuestro servicio Web. No te las pierdas.</h2>
         <p class="content is-medium">
-          Este proyecto es el resultado de la dedicación de apasionados por la tecnología y los videojuegos. Creemos en el poder de la información y la comunidad para enriquecer nuestra experiencia de gaming. Aunque este es un proyecto personal (o pequeño equipo), estamos comprometidos a mantenerlo actualizado y a mejorar continuamente.
+          Este proyecto es el resultado de la dedicación y la pasión por la tecnología y los videojuegos. Creemos en el poder de la información y la comunidad para enriquecer nuestra experiencia de gaming. Aunque este es un proyecto personal, estamos comprometidos a mantenerlo actualizado y a mejorar continuamente.
         </p>
+        <div class="box mt-6">
+            <h3 class="title is-4">¡Suscríbete a nuestras actualizaciones!</h3>
+            <p>Recibe las últimas noticias y novedades directamente en tu correo.</p>
+            {% if subscription_message %}
+                <p class="{% if 'exitosamente' in subscription_message %}has-text-success{% else %}has-text-danger{% endif %} mb-3">
+                    {{ subscription_message }}
+                </p>
+            {% endif %}
+
+            <form action="/subscribe" method="post" class="field has-addons has-addons-centered mt-4">
+                <div class="control is-expanded">
+                    <input class="input is-medium" type="email" name="email" placeholder="Introduce tu correo electrónico" required>
+                </div>
+                <div class="control">
+                    <button class="button is-info is-medium" type="submit">Suscribirme</button>
+                </div>
+            </form>
+        </div>
         <p class="content is-medium">
-          ¡Gracias por ser parte de "Mi Colección"!
+          ¡Gracias por ser parte de "La Colección"!
         </p>
       </div>
     </div>
