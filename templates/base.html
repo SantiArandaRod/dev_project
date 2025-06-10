@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Consolas {% endblock %}</title>
 
-    <!-- Bulma CSS -->
+        <!-- Bulma CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 
     <!-- Material Design Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
-
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -22,7 +21,6 @@
     <section class="section">
         <div class="container">
             {% block content %}
-            <!-- Aquí se inserta el contenido específico de cada página -->
             {% endblock %}
         </div>
     </section>
