@@ -4,6 +4,8 @@ import pandas as pd
 from typing import Optional, Type # Added Type for model hinting
 import os
 from dotenv import load_dotenv
+from sqlmodel import SQLModel, create_engine
+from sqlmodels_db import GameSQL, ConsoleSQL, ArchivedGameSQL, ArchivedConsoleSQL # ¡Importa los nuevos modelos!
 
 from sqlmodel import SQLModel, Field, create_engine # Ensure create_engine is here
 from sqlmodel.ext.asyncio.session import AsyncSession # Correct import for AsyncSession
@@ -188,7 +190,10 @@ async def main():
 
     print("\n--- All CSV data migration complete! ---")
 
+def create_db_and_tables():
+    print("Creando tablas en la base de datos...")
+    SQLModel.metadata.create_all(engine)
+    print("Tablas creadas exitosamente.")
 
-# --- 9. Run the Script ---
 if __name__ == "__main__":
-    asyncio.run(main())
+    create_db_and_tables()
