@@ -192,3 +192,48 @@ pagination-list {
     color: #666;
     font-size: 0.9em;
 }
+/* Colores y gradientes personalizados */
+:root {
+    --primary-gradient-start: #4facfe; /* Azul claro */
+    --primary-gradient-end: #00f2fe;   /* Cian */
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Section - Degradado y sombra sutil */
+.hero.is-primary.is-medium.is-bold {
+    background-image: linear-gradient(to right, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+    box-shadow: 0 4px 8px var(--box-shadow-color);
+}
+
+/* Contenedores de contenido - Sombra y esquinas redondeadas */
+.box {
+    box-shadow: 0 8px 16px var(--box-shadow-color), 0 3px 6px rgba(0, 0, 0, 0.08);
+    border-radius: 12px; /* Esquinas más suaves */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Transición suave */
+}
+
+/* Efecto hover en las cajas */
+.box:hover {
+    transform: translateY(-5px); /* Pequeño levantamiento al pasar el ratón */
+    box-shadow: 0 12px 24px var(--box-shadow-color), 0 6px 12px rgba(0, 0, 0, 0.12); /* Sombra más pronunciada */
+}
+
+/* Títulos dentro de las cajas */
+.box .title {
+    border-bottom: 2px solid #eee; /* Línea sutil bajo el título */
+    padding-bottom: 10px;
+    margin-bottom: 20px !important; /* Ajusta el margen si Bulma lo sobreescribe */
+}
+
+/* Listas de intereses */
+.content ul.fa-ul li { /* Si usas fa-ul con Font Awesome */
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.content .icon-text .icon { /* Asegura el espaciado para los iconos de MDI */
+    margin-right: 10px;
+    min-width: 28px; /* Espacio fijo para el icono */
+    text-align: center;
+}
