@@ -1,0 +1,33 @@
+{# templates/subscribers.html #}
+{% extends 'base.html' %}
+
+{% block title %}Lista de Suscriptores{% endblock %}
+
+{% block content %}
+    <h1 class="title is-2 has-text-centered">Lista de Suscriptores</h1>
+
+    <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable is-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email</th>
+                    <th>Subscrito El</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subscriber in subscribers %}
+                <tr>
+                    <td>{{ subscriber.id }}</td>
+                    <td>{{ subscriber.email }}</td>
+                    <td>{{ subscriber.subscribed_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if not subscribers %}
+        <p class="notification is-info has-text-centered">No hay suscriptores registrados.</p>
+    {% endif %}
+{% endblock %}
