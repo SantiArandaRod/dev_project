@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Request, Depends, Form, HTTPException, FastAPI, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -5,7 +7,7 @@ from sqlmodel import Session, select, func
 from db_ops import parse_float
 from db_connection import get_session, AsyncSession
 from typing import Optional
-from sqlmodels_db import ConsoleSQL, GameSQL
+from sqlmodels_db import ConsoleSQL, GameSQL, ArchivedGameSQL, ArchivedConsoleSQL
 import db_ops as crud  # Debe tener funciones para games y consoles
 app = FastAPI()
 router = APIRouter()
@@ -94,46 +96,92 @@ async def create_console_from_form(
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=f"Error al crear la consola: {e}. Por favor, revisa los datos ingresados.")
 
+# GET para mostrar el formulario de edición de una consola
 @router.get("/consoles/{console_id}/edit", response_class=HTMLResponse)
-async def edit_console(request: Request, console_id: int, session: Session = Depends(get_session)):
-    console = await crud.update_console(session, console_id)
-    if console is None:
-        raise HTTPException(status_code=404, detail="Console not found")
-    return templates.TemplateResponse("consoles/edit.html", {
-        "request": request,
-        "console": console
-    })
+async def edit_console_form(console_id: int, request: Request, session: AsyncSession = Depends(get_session)):
+    """Muestra el formulario para editar una consola existente."""
+    console = await session.get(ConsoleSQL, console_id)
+    if not console:
+        raise HTTPException(status_code=404, detail="Console not found for editing.")
+    return templates.TemplateResponse("consoles/edit_console.html", {"request": request, "console": console})
 
 
-@router.post("/consoles/{console_id}/edit", response_class=HTMLResponse)
-async def update_console(
-    request: Request,
+# POST para procesar el envío del formulario de edición de una consola
+@router.post("/consoles/{console_id}/edit", response_class=HTMLResponse) # O podrías usar PUT/PATCH
+async def update_console_from_form(
     console_id: int,
-    name: str = Form(...),
-    type: str = Form(...),
-    company: str = Form(...),
-    released_year: int = Form(...),
-    discontinuation_year: int = Form(None),
-    units_sold: float = Form(...),
-    session: Session = Depends(get_session)
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    # Campos del formulario (ajusta según tus campos ConsoleSQL)
+    Console_Name: str = Form(...),
+    Type: str = Form(...),
+    Company: str = Form(...),
+    Released_Year: int = Form(...),
+    Discontinuation_Year: Optional[int] = Form(None),
+    Units_Sold: Optional[float] = Form(None)
 ):
-    updated_data = {
-        "Console_Name": name,
-        "Type": type,
-        "Company": company,
-        "Released_Year": released_year,
-        "Discontinuation_Year": discontinuation_year,
-        "Units_Sold": units_sold
-    }
-    await crud.update_console(session, console_id, updated_data)
-    return RedirectResponse(f"/web/consoles/{console_id}", status_code=303)
+    """Procesa los datos del formulario y actualiza una consola."""
+    db_console = await session.get(ConsoleSQL, console_id)
+    if not db_console:
+        raise HTTPException(status_code=404, detail="Console not found for update.")
+
+    try:
+        # Actualiza los atributos de la consola con los datos del formulario
+        db_console.Console_Name = Console_Name
+        db_console.Type = Type
+        db_console.Company = Company
+        db_console.Released_Year = Released_Year
+        db_console.Discontinuation_Year = Discontinuation_Year
+        db_console.Units_Sold = Units_Sold
+
+        session.add(db_console)
+        await session.commit()
+        await session.refresh(db_console)
+        return RedirectResponse(url=f"/consoles/view", status_code=303) # Redirige a la lista después de actualizar
+    except Exception as e:
+        print(f"Error updating console {console_id}: {e}")
+        return templates.TemplateResponse(
+            "edit_console.html",
+            {"request": request, "console": db_console, "error_message": "Error al actualizar la consola. " + str(e)},
+            status_code=400
+        )
 
 
-@router.get("/consoles/{console_id}/delete", response_class=HTMLResponse)
-async def delete_console(request: Request, console_id: int, session: Session = Depends(get_session)):
-    await crud.delete_console(session, console_id)
-    return RedirectResponse("/web/consoles", status_code=303)
+@router.post("/consoles/{console_id}/delete", response_class=RedirectResponse, status_code=303)
+async def move_console_to_archive(console_id: int, session: AsyncSession = Depends(get_session)):
+    """Mueve una consola a la tabla de consolas archivadas y la elimina de la tabla principal."""
+    console_to_archive = await session.get(ConsoleSQL, console_id)
+    if not console_to_archive:
+        raise HTTPException(status_code=404, detail="Consola no encontrada para archivar.")
 
+    # Crea un nuevo registro en la tabla de archivados
+    archived_console = ArchivedConsoleSQL(
+        id=console_to_archive.id,  # Mantiene el mismo ID para referencia
+        Console_Name=console_to_archive.Console_Name,
+        Type=console_to_archive.Type,
+        Company=console_to_archive.Company,
+        Released_Year=console_to_archive.Released_Year,
+        Discontinuation_Year=console_to_archive.Discontinuation_Year,
+        Units_Sold=console_to_archive.Units_Sold,
+        archived_at=datetime.now()  # Registra la fecha y hora de archivado
+    )
+
+    session.add(archived_console)  # Añade el registro a la tabla de archivados
+    await session.delete(console_to_archive)  # Elimina el registro de la tabla principal
+
+    await session.commit()  # Confirma ambas operaciones
+    return RedirectResponse(url="/consoles/view", status_code=303)  # Redirige a la lista de consolas
+
+@router.get("/consoles/archived", response_class=HTMLResponse)
+async def view_archived_consoles(request: Request, session: AsyncSession = Depends(get_session)):
+    """Muestra una lista de consolas archivadas."""
+    archived_consoles_statement = select(ArchivedConsoleSQL)
+    archived_consoles_result = await session.execute(archived_consoles_statement)
+    archived_consoles = archived_consoles_result.scalars().all()
+    return templates.TemplateResponse(
+        "consoles/archived_consoles.html",
+        {"request": request, "archived_consoles": archived_consoles}
+    )
 # ---------------- GAMES ----------------
 @router.get("/games/view", response_class=HTMLResponse)
 async def games_list(request: Request, session: Session = Depends(get_session), page: int = 1, per_page: int = 20):
@@ -226,39 +274,105 @@ async def create_game_from_form(
         traceback.print_exc()
         raise HTTPException(status_code=400, detail=f"Error al crear el juego: {e}. Por favor, revisa los datos ingresados.")
 @router.get("/games/{game_id}/edit", response_class=HTMLResponse)
-async def edit_game(request: Request, game_id: int, session: Session = Depends(get_session)):
-    game = await crud.get_game(session, game_id)
-    if game is None:
-        raise HTTPException(status_code=404, detail="Game not found")
-    return templates.TemplateResponse("games/edit.html", {
-        "request": request,
-        "game": game
-    })
+async def edit_game_form(game_id: int, request: Request, session: AsyncSession = Depends(get_session)):
+    """Muestra el formulario para editar un juego existente."""
+    game = await session.get(GameSQL, game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found for editing.")
+    return templates.TemplateResponse("games/edit_game.html", {"request": request, "game": game})
 
-
-@router.post("/games/{game_id}/edit", response_class=HTMLResponse)
-async def update_game(
-    request: Request,
+# POST para procesar el envío del formulario de edición de un juego
+@router.post("/games/{game_id}/edit", response_class=HTMLResponse) # O podrías usar PUT si lo prefieres para la lógica de API
+async def update_game_from_form(
     game_id: int,
-    title: str = Form(...),
-    platform: str = Form(...),
-    year: int = Form(...),
-    genre: str = Form(...),
-    publisher: str = Form(...),
-    session: Session = Depends(get_session)
+    request: Request,
+    session: AsyncSession = Depends(get_session),
+    # Campos del formulario (ajusta según tus campos GameSQL)
+    Rank: int = Form(...),
+    Game_Title: str = Form(...),
+    Platform: str = Form(...),
+    Year: int = Form(...),
+    Genre: str = Form(...),
+    Publisher: str = Form(...),
+    North_America: Optional[float] = Form(None), # Usar None para campos opcionales
+    Europe: Optional[float] = Form(None),
+    Japan: Optional[float] = Form(None),
+    Rest_of_World: Optional[float] = Form(None),
+    Global: Optional[float] = Form(None),
+    Review: Optional[str] = Form(None)
 ):
-    updated_data = {
-        "Game_Title": title,
-        "Platform": platform,
-        "Year": year,
-        "Genre": genre,
-        "Publisher": publisher
-    }
-    await crud.update_game(session, game_id, updated_data)
-    return RedirectResponse(f"/web/games/{game_id}", status_code=303)
+    """Procesa los datos del formulario y actualiza un juego."""
+    db_game = await session.get(GameSQL, game_id)
+    if not db_game:
+        raise HTTPException(status_code=404, detail="Game not found for update.")
+
+    try:
+        # Actualiza los atributos del juego con los datos del formulario
+        db_game.Rank = Rank
+        db_game.Game_Title = Game_Title
+        db_game.Platform = Platform
+        db_game.Year = Year
+        db_game.Genre = Genre
+        db_game.Publisher = Publisher
+        db_game.North_America = North_America
+        db_game.Europe = Europe
+        db_game.Japan = Japan
+        db_game.Rest_of_World = Rest_of_World
+        db_game.Global = Global
+        db_game.Review = Review
+
+        session.add(db_game)
+        await session.commit()
+        await session.refresh(db_game)
+        return RedirectResponse(url=f"/games/view", status_code=303) # Redirige a la lista después de actualizar
+    except Exception as e:
+        # Manejo de errores, puedes renderizar el formulario de nuevo con un mensaje de error
+        print(f"Error updating game {game_id}: {e}")
+        return templates.TemplateResponse(
+            "edit_game.html",
+            {"request": request, "game": db_game, "error_message": "Error al actualizar el juego. " + str(e)},
+            status_code=400 # Bad Request
+        )
 
 
-@router.get("/games/{game_id}/delete", response_class=HTMLResponse)
-async def delete_game(request: Request, game_id: int, session: Session = Depends(get_session)):
-    await crud.delete_game(session, game_id)
-    return RedirectResponse("/web/games", status_code=303)
+@router.post("/games/{game_id}/delete", response_class=RedirectResponse, status_code=303)
+async def move_game_to_archive(game_id: int, session: AsyncSession = Depends(get_session)):
+    """Mueve un juego a la tabla de juegos archivados y lo elimina de la tabla principal."""
+    game_to_archive = await session.get(GameSQL, game_id)
+    if not game_to_archive:
+        raise HTTPException(status_code=404, detail="Juego no encontrado para archivar.")
+
+    # Crea un nuevo registro en la tabla de archivados con los datos del juego original
+    archived_game = ArchivedGameSQL(
+        index=game_to_archive.index,  # Mantiene el mismo ID para referencia
+        Rank=game_to_archive.Rank,
+        Game_Title=game_to_archive.Game_Title,
+        Platform=game_to_archive.Platform,
+        Year=game_to_archive.Year,
+        Genre=game_to_archive.Genre,
+        Publisher=game_to_archive.Publisher,
+        North_America=game_to_archive.North_America,
+        Europe=game_to_archive.Europe,
+        Japan=game_to_archive.Japan,
+        Rest_of_World=game_to_archive.Rest_of_World,
+        Global=game_to_archive.Global,
+        Review=game_to_archive.Review,
+        archived_at=datetime.now()  # Registra la fecha y hora de archivado
+    )
+
+    session.add(archived_game)  # Añade el registro a la tabla de archivados
+    await session.delete(game_to_archive)  # Elimina el registro de la tabla principal
+
+    await session.commit()  # Confirma ambas operaciones
+    return RedirectResponse(url="/games/view", status_code=303)  # Redirige a la lista de juegos
+
+@router.get("/games/archived", response_class=HTMLResponse)
+async def view_archived_games(request: Request, session: AsyncSession = Depends(get_session)):
+    """Muestra una lista de juegos archivados."""
+    archived_games_statement = select(ArchivedGameSQL)
+    archived_games_result = await session.execute(archived_games_statement)
+    archived_games = archived_games_result.scalars().all()
+    return templates.TemplateResponse(
+        "games/archived_games.html",
+        {"request": request, "archived_games": archived_games}
+    )
