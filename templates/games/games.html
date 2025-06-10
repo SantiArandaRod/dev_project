@@ -1,0 +1,97 @@
+{# templates/games.html #}
+{% extends 'base.html' %}
+
+{% block title %}Juegos - Mi Colección{% endblock %}
+
+{% block content %}
+    <h1 class="title has-text-centered is-2">Lista de Juegos</h1>
+
+    <div class="field is-grouped is-grouped-centered mb-5">
+        <div class="control">
+            <form action="{{ request.url.path }}" method="get" class="field has-addons">
+                <div class="control">
+                    <label for="page_input" class="label is-sr-only">Ir a página:</label>
+                    <input type="number" id="page_input" name="page" min="1" max="{{ total_pages }}" value="{{ page }}" class="input is-small" placeholder="Página">
+                </div>
+                <div class="control">
+                    <button type="submit" class="button is-small is-primary">Ir</button>
+                </div>
+                <p class="help ml-3">Página {{ page }} de {{ total_pages }}</p>
+            </form>
+        </div>
+    </div>
+
+    {% if games %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped is-hoverable is-bordered">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Título</th>
+                        <th>Plataforma</th>
+                        <th>Año</th>
+                        <th>Género</th>
+                        <th>Editor</th>
+                        <th>Review</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game in games %}
+                    <tr>
+                        <td>{{ game.Rank }}</td>
+                        <td>{{ game.Game_Title }}</td>
+                        <td>{{ game.Platform }}</td>
+                        <td>{{ game.Year }}</td>
+                        <td>{{ game.Genre }}</td>
+                        <td>{{ game.Publisher }}</td>
+                        <td>{{ game.Review if game.Review is not none else 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="notification is-info has-text-centered">No hay juegos disponibles en este momento.</p>
+    {% endif %}
+
+    <nav class="pagination is-centered mt-5" role="navigation" aria-label="pagination">
+        {% if page > 1 %}
+            <a class="pagination-previous" href="?page={{ page - 1 }}">Anterior</a>
+        {% else %}
+            <a class="pagination-previous" disabled>Anterior</a>
+        {% endif %}
+
+        {% if page < total_pages %}
+            <a class="pagination-next" href="?page={{ page + 1 }}">Siguiente</a>
+        {% else %}
+            <a class="pagination-next" disabled>Siguiente</a>
+        {% endif %}
+
+        <ul class="pagination-list">
+            {% if page > 2 %}
+                <li><a class="pagination-link" href="?page=1">1</a></li>
+            {% endif %}
+
+            {% if page > 3 %}
+                <li><span class="pagination-ellipsis">&hellip;</span></li>
+            {% endif %}
+
+            {% for p in range(page - 1, page + 2) %}
+                {% if 1 <= p <= total_pages %}
+                    <li>
+                        <a class="pagination-link {% if p == page %}is-current{% endif %}" href="?page={{ p }}">{{ p }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page < total_pages - 2 %}
+                <li><span class="pagination-ellipsis">&hellip;</span></li>
+            {% endif %}
+
+            {% if page < total_pages - 1 %}
+                <li><a class="pagination-link" href="?page={{ total_pages }}">{{ total_pages }}</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+{% endblock %}
