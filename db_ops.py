@@ -60,7 +60,7 @@ async def get_games(session: AsyncSession) -> List[GameSQL]:
 
 
 
-async def update_gamee(session: AsyncSession, game_id: int, game_update: Dict[str, Any]) -> GameSQL:
+async def update_game(session: AsyncSession, game_id: int, game_update: Dict[str, Any]) -> GameSQL:
     db_game = await session.get(GameSQL, game_id)
     if not db_game:
         raise HTTPException(status_code=404, detail="Game not found") # changed
@@ -72,3 +72,8 @@ async def update_gamee(session: AsyncSession, game_id: int, game_update: Dict[st
     await session.commit()
     await session.refresh(db_game)
     return db_game
+
+async def get_games_paginated(session: AsyncSession, skip: int = 0, limit: int = 20):
+    statement = select(GameSQL).offset(skip).limit(limit)
+    result = await session.exec(statement)
+    return result.all()
