@@ -1,0 +1,40 @@
+{# templates/archived_games.html #}
+{% extends 'base.html' %}
+
+{% block title %}Juegos Archivados - Mi Colección{% endblock %}
+
+{% block content %}
+    <h1 class="title has-text-centered is-2">Juegos Archivados</h1>
+
+    <a href="/games/view" class="button is-link mb-4">Volver a Juegos Activos</a>
+
+    {% if archived_games %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped is-hoverable is-bordered">
+                <thead>
+                    <tr>
+                        <th>ID Original</th>
+                        <th>Título</th>
+                        <th>Plataforma</th>
+                        <th>Año</th>
+                        <th>Archivado El</th>
+                        {# Puedes añadir más columnas si lo deseas #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for game in archived_games %}
+                    <tr>
+                        <td>{{ game.index }}</td>
+                        <td>{{ game.Game_Title }}</td>
+                        <td>{{ game.Platform }}</td>
+                        <td>{{ game.Year }}</td>
+                        <td>{{ game.archived_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="notification is-info has-text-centered">No hay juegos archivados en este momento.</p>
+    {% endif %}
+{% endblock %}

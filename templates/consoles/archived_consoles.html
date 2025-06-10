@@ -1,0 +1,40 @@
+{# templates/archived_consoles.html #}
+{% extends 'base.html' %}
+
+{% block title %}Consolas Archivadas - Mi Colección{% endblock %}
+
+{% block content %}
+    <h1 class="title has-text-centered is-2">Consolas Archivadas</h1>
+
+    <a href="/consoles/view" class="button is-link mb-4">Volver a Consolas Activas</a>
+
+    {% if archived_consoles %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped is-hoverable is-bordered">
+                <thead>
+                    <tr>
+                        <th>ID Original</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Compañía</th>
+                        <th>Archivado El</th>
+                        {# Puedes añadir más columnas si lo deseas #}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for console in archived_consoles %}
+                    <tr>
+                        <td>{{ console.id }}</td>
+                        <td>{{ console.Console_Name }}</td>
+                        <td>{{ console.Type }}</td>
+                        <td>{{ console.Company }}</td>
+                        <td>{{ console.archived_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="notification is-info has-text-centered">No hay consolas archivadas en este momento.</p>
+    {% endif %}
+{% endblock %}
