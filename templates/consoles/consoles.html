@@ -91,5 +91,15 @@
             {% endif %}
         </ul>
     </nav>
+<form action="/consoles/search" method="get" class="field has-addons is-centered mt-5">
+  <div class="control">
+    <input class="input" type="text" name="q" placeholder="Buscar consola por nombre" required>
+  </div>
+  <div class="control">
+    <button class="button is-info" type="submit">Buscar</button>
+  </div>
+</form>
+
+    </nav>
 
 {% endblock %}
