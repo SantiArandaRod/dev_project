@@ -17,8 +17,8 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from routers import web
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.include_router(web.router, prefix="/web")
+app.mount("/statics", StaticFiles(directory="statics"), name="statics")
+app.include_router(web.router)
 templates = Jinja2Templates(directory="templates/")
 
 

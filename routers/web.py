@@ -1,7 +1,9 @@
+from select import select
+
 from fastapi import APIRouter, Request, Depends, Form, HTTPException, FastAPI
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlmodel import Session
+from sqlmodel import Session, select, func
 
 from db_connection import get_session
 from sqlmodels_db import ConsoleSQL, GameSQL
@@ -14,25 +16,39 @@ templates = Jinja2Templates(directory="templates")
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
-
+@router.get("/about", response_class=HTMLResponse)
+async def about(request: Request):
+    return templates.TemplateResponse("about.html", {"request": request})
 
 # ---------------- CONSOLES ----------------
-@router.get("/consoles", response_class=HTMLResponse)
-async def consoles_list(request: Request, session: Session = Depends(get_session)):
-    consoles = await crud.get_consoles(session)
-    return templates.TemplateResponse("consoles/list.html", {
+@router.get("/consoles/view", response_class=HTMLResponse)
+async def consoles_list(
+    request: Request,
+    page: int = 1,
+    session: Session = Depends(get_session)
+):
+    limit = 10  # o el número que prefieras por página
+    offset = (page - 1) * limit
+
+    all_consoles = await crud.get_consoles(session)
+    total_consoles = len(all_consoles)
+    total_pages = (total_consoles + limit - 1) // limit  # redondeo hacia arriba
+
+    consoles = all_consoles[offset : offset + limit]
+
+    return templates.TemplateResponse("consoles/consoles.html", {
         "request": request,
         "consoles": consoles,
-        "show_actions": True
+        "page": page,
+        "total_pages": total_pages
     })
-
 
 @router.get("/consoles/{console_id}", response_class=HTMLResponse)
 async def one_console(request: Request, console_id: int, session: Session = Depends(get_session)):
     console = await crud.get_console(session, console_id)
     if console is None:
         raise HTTPException(status_code=404, detail="Console not found")
-    return templates.TemplateResponse("consoles/detail.html", {
+    return templates.TemplateResponse("includes/console_card.html", {
         "request": request,
         "console": console,
         "show_actions": True
@@ -80,13 +96,22 @@ async def delete_console(request: Request, console_id: int, session: Session = D
     return RedirectResponse("/web/consoles", status_code=303)
 
 # ---------------- GAMES ----------------
-@router.get("/games", response_class=HTMLResponse)
-async def games_list(request: Request, session: Session = Depends(get_session)):
-    games = await crud.get_games(session)
-    return templates.TemplateResponse("games/list.html", {
+@router.get("/games/view", response_class=HTMLResponse)
+async def games_list(request: Request, session: Session = Depends(get_session), page: int = 1, per_page: int = 20):
+    skip = (page - 1) * per_page
+    games = await crud.get_games_paginated(session, skip=skip, limit=per_page)
+
+    # Calcular el total para saber cuántas páginas mostrar (opcional si tienes muchos juegos)
+    total_games = await session.exec(select(func.count()).select_from(GameSQL))
+    total = total_games.one()
+
+    total_pages = (total + per_page - 1) // per_page  # Redondear hacia arriba
+
+    return templates.TemplateResponse("/games/games.html", {
         "request": request,
         "games": games,
-        "show_actions": True
+        "page": page,
+        "total_pages": total_pages,
     })
 
 
