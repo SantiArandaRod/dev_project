@@ -30,89 +30,6 @@ async def startup_event():
 
 
 
-async def import_csv_data(session: AsyncSession, csv_file: str, model: Type[SQLModel]):
-    try:
-        df = pd.read_csv(csv_file)
-    except FileNotFoundError:
-        print(f"Error: El archivo CSV '{csv_file}' no se encontró.")
-        return
-    except Exception as e:
-        print(f"Error al leer el archivo CSV: {e}")
-        return
-
-    for _, row in df.iterrows():
-        try:
-            # Crea un diccionario con los datos de la fila, manejando valores nulos y tipos
-            row_dict = {col.lower(): value if pd.notnull(value) else None for col, value in row.items()}
-
-            if model == GameSQL:
-                # Ensure 'rank' is not None
-                rank_value = row_dict.get('rank')
-                if rank_value is None:
-                    print(f"Skipping row with null 'Rank' value: {row_dict}")
-                    continue  # Skip this row
-
-                # Ensure 'review' is a string
-                review_value = row_dict.get('review')
-                if review_value is not None and not isinstance(review_value, str):
-                    review_value = str(review_value)
-
-                # Crea una instancia del modelo GameSQL
-                game_instance = GameSQL(
-                    Rank=rank_value,
-                    Game_Title=row_dict.get('game_title'),
-                    Platform=row_dict.get('platform'),
-                    Year=row_dict.get('year'),
-                    Genre=row_dict.get('genre'),
-                    Publisher=row_dict.get('publisher'),
-                    North_America=row_dict.get('north_america'),
-                    Europe=row_dict.get('europe'),
-                    Japan=row_dict.get('japan'),
-                    Rest_of_World=row_dict.get('rest_of_world'),
-                    Global=row_dict.get('global'),
-                    Review=review_value  # Use the converted review_value
-                )
-                session.add(game_instance)
-            elif model == ConsoleSQL:
-                # Crea una instancia del modelo ConsoleSQL
-                console_instance = ConsoleSQL(
-                    Id=row_dict.get('id'),
-                    Console_Name=row_dict.get('console_name'),
-                    Type=row_dict.get('type'),
-                    Company=row_dict.get('company'),
-                    Released_Year=row_dict.get('released_year'),
-                    Discontinuation_Year=row_dict.get('discontinuation_year'),
-                    Units_Sold=row_dict.get('units_sold')
-                )
-                session.add(console_instance)
-            else:
-                print(f"Error: Modelo no soportado: {model.__name__}")
-                return
-
-        except Exception as e:
-            print(f"Error al procesar la fila: {e}")
-            await session.rollback()  # Rollback en caso de error en una fila
-            continue  # Continuar con la siguiente fila
-
-    await session.commit()
-    print(f"Datos del archivo CSV '{csv_file}' importados a la tabla '{model.__tablename__}' exitosamente.")
-
-
-
-@app.get("/import-data/")
-async def import_data_endpoint(session: AsyncSession = Depends(get_session),):
-    await import_csv_data(session, "data/games.csv", GameSQL)
-    await import_csv_data(session, "data/consoles.csv", ConsoleSQL)
-    return {"message": "Importación de datos iniciada y exitosa."}
-
-
-
-@app.on_event("startup")
-async def startup_event():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-
-
 @app.post("/games/", response_model=GameSQL, tags=["Create Game"])
 async def create_game_endpoint(game: GameSQL, session: AsyncSession = Depends(get_session)):
     session.add(game)
@@ -154,6 +71,24 @@ async def update_game_endpoint(game_id: int, updated_game: GameSQL, session: Asy
     db_game.Rest_of_World = updated_game.Rest_of_World
     db_game.Global = updated_game.Global
     db_game.Review = updated_game.Review
+
+    session.add(db_game)
+    await session.commit()
+    await session.refresh(db_game)
+    return db_game
+
+
+@app.patch("/games/{game_id}", response_model=GameSQL, tags=["Update Game"])
+async def patch_game_endpoint(game_id: int, game_update: GameUpdate, session: AsyncSession = Depends(get_session)):
+    db_game = await session.get(GameSQL, game_id)
+    if not db_game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    # Esto actualiza solo los campos que se proporcionaron en el game_update
+    # model_dump(exclude_unset=True) asegura que solo se usen los campos que se enviaron en la solicitud.
+    game_data = game_update.model_dump(exclude_unset=True)
+    for key, value in game_data.items():
+        setattr(db_game, key, value)
 
     session.add(db_game)
     await session.commit()
@@ -210,7 +145,20 @@ async def update_console_endpoint(console_id: int, updated_console: ConsoleSQL, 
     await session.commit()
     await session.refresh(db_console)
     return db_console
+@app.patch("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Update Console"])
+async def patch_console_endpoint(console_id: int, console_update: ConsoleUpdate, session: AsyncSession = Depends(get_session)):
+    db_console = await session.get(ConsoleSQL, console_id)
+    if not db_console:
+        raise HTTPException(status_code=404, detail="Console not found")
 
+    console_data = console_update.model_dump(exclude_unset=True)
+    for key, value in console_data.items():
+        setattr(db_console, key, value)
+
+    session.add(db_console)
+    await session.commit()
+    await session.refresh(db_console)
+    return db_console
 
 
 @app.delete("/consoles/{console_id}", response_model=ConsoleSQL, tags=["Delete Console"])
