@@ -1,0 +1,80 @@
+{# templates/consoles/create.html #}
+{% extends 'base.html' %}
+
+{% block title %}Crear Consola - Mi Colección{% endblock %}
+
+{% block content %}
+<section class="hero is-primary is-medium">
+  <div class="hero-body">
+    <div class="container">
+      <p class="title is-1 has-text-centered">
+        Crear Nueva Consola
+      </p>
+      <p class="subtitle is-4 has-text-centered">
+        Añade una consola a tu colección.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="container mt-5">
+    <div class="columns is-centered">
+        <div class="column is-6">
+            <div class="box">
+                <form action="/consoles/create" method="POST">
+                    <div class="field">
+                        <label class="label" for="console_name">Nombre de la Consola</label>
+                        <div class="control">
+                            <input class="input" type="text" id="console_name" name="Console_Name" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="type">Tipo</label>
+                        <div class="control">
+                            <input class="input" type="text" id="type" name="Type" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="company">Compañía</label>
+                        <div class="control">
+                            <input class="input" type="text" id="company" name="Company" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="released_year">Año de Lanzamiento</label>
+                        <div class="control">
+                            <input class="input" type="number" id="released_year" name="Released_Year" required>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="discontinuation_year">Año de Descontinuación <small>(Opcional)</small></label>
+                        <div class="control">
+                            <input class="input" type="number" id="discontinuation_year" name="Discontinuation_Year">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label" for="units_sold">Unidades Vendidas (Millones) <small>(Opcional)</small></label>
+                        <div class="control">
+                            <input class="input" type="number" step="0.01" id="units_sold" name="Units_Sold">
+                        </div>
+                    </div>
+
+                    <div class="field is-grouped is-grouped-centered">
+                        <div class="control">
+                            <button class="button is-primary" type="submit">Crear Consola</button>
+                        </div>
+                        <div class="control">
+                            <a href="/consoles/view" class="button is-light">Cancelar</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
